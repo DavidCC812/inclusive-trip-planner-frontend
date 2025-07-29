@@ -1,12 +1,13 @@
 package com.example.frontend.viewmodels
 
-import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.frontend.api.ReviewApi
 import com.example.frontend.models.Review
 import com.example.frontend.models.ReviewRequest
 import com.example.frontend.network.RetrofitClient
+import com.example.frontend.util.AndroidLogger
+import com.example.frontend.util.Logger
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
@@ -14,7 +15,8 @@ import kotlinx.coroutines.launch
 class ReviewViewModel(
     private val reviewApi: ReviewApi = RetrofitClient.reviewApi,
     skipInitialFetch: Boolean = false,
-    initialReviews: List<Review> = emptyList()
+    initialReviews: List<Review> = emptyList(),
+    private val logger: Logger = AndroidLogger
 ) : ViewModel() {
 
     private val _reviews = MutableStateFlow(initialReviews)
@@ -35,9 +37,9 @@ class ReviewViewModel(
                 val response = reviewApi.getAllReviews()
                 _reviews.value = response
                 _error.value = null
-                //Log.d("ReviewViewModel", "Fetched ${response.size} reviews")
+                logger.d("ReviewViewModel", "Fetched ${response.size} reviews")
             } catch (e: Exception) {
-                //Log.e("ReviewViewModel", "Error fetching reviews: ${e.message}", e)
+                logger.e("ReviewViewModel", "Error fetching reviews: ${e.message}", e)
                 _error.value = "Failed to fetch reviews"
             }
         }
@@ -58,7 +60,7 @@ class ReviewViewModel(
                 _reviews.value = _reviews.value + response
                 onSuccess()
             } catch (e: Exception) {
-                //Log.e("ReviewViewModel", "Error posting review: ${e.message}", e)
+                logger.e("ReviewViewModel", "Error posting review: ${e.message}", e)
                 onError(e.message)
             }
         }

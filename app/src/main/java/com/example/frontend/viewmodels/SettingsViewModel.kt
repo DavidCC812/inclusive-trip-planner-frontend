@@ -1,22 +1,25 @@
 package com.example.frontend.viewmodels
 
-import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.frontend.api.SettingApi
 import com.example.frontend.api.UserSettingApi
 import com.example.frontend.models.UserSettingRequest
 import com.example.frontend.models.UserSettingUi
+import com.example.frontend.network.RetrofitClient
+import com.example.frontend.util.AndroidLogger
+import com.example.frontend.util.Logger
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
 
 class SettingsViewModel(
     private val userId: String,
-    private val settingApi: SettingApi = com.example.frontend.network.RetrofitClient.settingApi,
-    private val userSettingApi: UserSettingApi = com.example.frontend.network.RetrofitClient.userSettingApi,
+    private val settingApi: SettingApi = RetrofitClient.settingApi,
+    private val userSettingApi: UserSettingApi = RetrofitClient.userSettingApi,
     initialSettings: List<UserSettingUi> = emptyList(),
-    skipInitFetch: Boolean = false
+    skipInitFetch: Boolean = false,
+    private val logger: Logger = AndroidLogger
 ) : ViewModel() {
 
     private val _settings = MutableStateFlow(initialSettings)
@@ -58,6 +61,7 @@ class SettingsViewModel(
                 _settings.value = uiList
             } catch (e: Exception) {
                 _error.value = "Failed to load settings: ${e.localizedMessage}"
+                logger.e("SettingsViewModel", "Error loading settings: ${e.message}", e)
             } finally {
                 _isLoading.value = false
             }
@@ -77,10 +81,10 @@ class SettingsViewModel(
 
                 if (userSettingId.isNotEmpty()) {
                     userSettingApi.updateUserSetting(userSettingId, request)
-                    //Log.d("SettingsViewModel", "Updated setting via PUT: $settingId = $value")
+                    logger.d("SettingsViewModel", "Updated setting via PUT: $settingId = $value")
                 } else {
                     userSettingApi.postUserSetting(request)
-                    //Log.d("SettingsViewModel", "Created setting via POST: $settingId = $value")
+                    logger.d("SettingsViewModel", "Created setting via POST: $settingId = $value")
                 }
 
                 // Update local UI
@@ -90,7 +94,7 @@ class SettingsViewModel(
                 _settings.value = updatedList
 
             } catch (e: Exception) {
-                //Log.e("SettingsViewModel", "Failed to post/update setting", e)
+                logger.e("SettingsViewModel", "Failed to post/update setting", e)
             }
         }
     }

@@ -1,12 +1,13 @@
 package com.example.frontend.viewmodels
 
-import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.frontend.api.SavedItineraryApi
 import com.example.frontend.models.SavedItinerary
 import com.example.frontend.models.SavedItineraryRequest
 import com.example.frontend.network.RetrofitClient
+import com.example.frontend.util.AndroidLogger
+import com.example.frontend.util.Logger
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
@@ -16,7 +17,8 @@ class SavedItinerariesViewModel(
     private val api: SavedItineraryApi = RetrofitClient.savedItineraryApi,
     private val userId: UUID = UUID.fromString("00000000-0000-0000-0000-000000009999"), // Demo user
     initialSaved: List<SavedItinerary> = emptyList(),
-    skipInitialFetch: Boolean = false
+    skipInitialFetch: Boolean = false,
+    private val logger: Logger = AndroidLogger
 ) : ViewModel() {
 
     private val _savedItineraries = MutableStateFlow(initialSaved)
@@ -41,7 +43,7 @@ class SavedItinerariesViewModel(
                 _savedItineraries.value = response
                 _error.value = null
             } catch (e: Exception) {
-                //Log.e("SavedItineraries", "Fetch error: ${e.message}")
+                logger.e("SavedItineraries", "Fetch error: ${e.message}")
                 _error.value = "Error fetching saved itineraries"
             }
         }
@@ -50,17 +52,17 @@ class SavedItinerariesViewModel(
     fun saveItinerary(itineraryId: UUID, onSuccess: (() -> Unit)? = null) {
         viewModelScope.launch {
             try {
-                //Log.d("SavedItineraries", "Attempting to save itinerary $itineraryId")
+                logger.d("SavedItineraries", "Attempting to save itinerary $itineraryId")
 
                 val request = SavedItineraryRequest(userId, itineraryId)
                 val created = api.saveItinerary(request)
 
-                //Log.d("SavedItineraries", "Successfully saved: $created")
+                logger.d("SavedItineraries", "Successfully saved: $created")
 
                 _savedItineraries.value = _savedItineraries.value + created
                 onSuccess?.invoke()
             } catch (e: Exception) {
-                //Log.e("SavedItineraries", "Save error: ${e.message}", e)
+                logger.e("SavedItineraries", "Save error: ${e.message}", e)
             }
         }
     }
@@ -73,20 +75,18 @@ class SavedItinerariesViewModel(
                     api.deleteItinerary(existing.id)
                     _savedItineraries.value = _savedItineraries.value.filter { it.id != existing.id }
                 } catch (e: Exception) {
-                    //Log.e("SavedItineraries", "Delete error: ${e.message}")
+                    logger.e("SavedItineraries", "Delete error: ${e.message}")
                 }
             }
         }
     }
 
     fun setAsNextPlan(itineraryId: UUID) {
-        //.d("SavedItineraries", "Looking for itineraryId $itineraryId in: ${_savedItineraries.value.map { it.itineraryId }}")
+        logger.d("SavedItineraries", "Looking for itineraryId $itineraryId in: ${_savedItineraries.value.map { it.itineraryId }}")
         val item = _savedItineraries.value.find { it.itineraryId == itineraryId }
         if (item != null) {
             _nextPlan.value = item
-            //Log.d("SavedItineraries", "Set $itineraryId as next plan")
-        } else {
-            //Log.w("SavedItineraries", "Could not set next plan — itinerary not found")
+            logger.d("SavedItineraries", "Set $itineraryId as next plan")
         }
     }
 }
