@@ -3,7 +3,8 @@ package com.example.frontend.viewmodels
 import com.example.frontend.api.AccessibilityFeatureApi
 import com.example.frontend.api.UserAccessibilityFeatureApi
 import com.example.frontend.models.AccessibilityFeature
-import kotlinx.coroutines.flow.MutableStateFlow
+import com.example.frontend.models.UserAccessibilityFeature
+import com.example.frontend.util.TestLogger
 import io.mockk.coEvery
 import io.mockk.mockk
 import kotlinx.coroutines.Dispatchers
@@ -29,7 +30,11 @@ class AccessibilityFeatureViewModelTest {
         Dispatchers.setMain(testDispatcher)
         featureApi = mockk()
         userFeatureApi = mockk()
-        viewModel = AccessibilityFeatureViewModel(featureApi, userFeatureApi)
+        viewModel = AccessibilityFeatureViewModel(
+            featureApi = featureApi,
+            userFeatureApi = userFeatureApi,
+            logger = TestLogger
+        )
     }
 
     @After
@@ -39,7 +44,6 @@ class AccessibilityFeatureViewModelTest {
 
     @Test
     fun `fetchAccessibilityFeatures should update features and toggle loading`() = runTest {
-        // Given
         val features = listOf(
             AccessibilityFeature(
                 id = UUID.randomUUID(),
@@ -56,30 +60,26 @@ class AccessibilityFeatureViewModelTest {
         )
         coEvery { featureApi.getAccessibilityFeatures() } returns features
 
-        // When
         viewModel.fetchAccessibilityFeatures()
         testDispatcher.scheduler.advanceUntilIdle()
 
-        // Then
         assertEquals(features, viewModel.features.value)
         assertEquals(false, viewModel.isLoading.value)
     }
+
     @Test
     fun `fetchAccessibilityFeatures should handle API failure and stop loading`() = runTest {
-        // Given
         coEvery { featureApi.getAccessibilityFeatures() } throws RuntimeException("Network failure")
 
-        // When
         viewModel.fetchAccessibilityFeatures()
         testDispatcher.scheduler.advanceUntilIdle()
 
-        // Then
         assertEquals(emptyList<AccessibilityFeature>(), viewModel.features.value)
         assertEquals(false, viewModel.isLoading.value)
     }
+
     @Test
     fun `fetchUserFeatures should update selected labels for given user`() = runTest {
-        // Given
         val userId = UUID.randomUUID()
         val feature1 = AccessibilityFeature(
             id = UUID.randomUUID(),
@@ -95,7 +95,7 @@ class AccessibilityFeatureViewModelTest {
         )
 
         val userFeatures = listOf(
-            com.example.frontend.models.UserAccessibilityFeature(
+            UserAccessibilityFeature(
                 id = UUID.randomUUID(),
                 userId = userId,
                 featureId = feature2.id,
@@ -104,7 +104,6 @@ class AccessibilityFeatureViewModelTest {
             )
         )
 
-        // Mock before ViewModel creation
         coEvery { featureApi.getAccessibilityFeatures() } returns emptyList()
         coEvery { userFeatureApi.getAllUserAccessibilityFeatures() } returns userFeatures
 
@@ -112,14 +111,13 @@ class AccessibilityFeatureViewModelTest {
             featureApi = featureApi,
             userFeatureApi = userFeatureApi,
             initialFeatures = listOf(feature1, feature2),
-            skipInitFetch = true
+            skipInitFetch = true,
+            logger = TestLogger
         )
 
-        // When
         viewModel.fetchUserFeatures(userId.toString())
         testDispatcher.scheduler.advanceUntilIdle()
 
-        // Then
         assertEquals(listOf("Sign Language"), viewModel.selectedLabels.value)
     }
 }

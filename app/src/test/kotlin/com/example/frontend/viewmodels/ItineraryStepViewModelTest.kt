@@ -2,6 +2,7 @@ package com.example.frontend.viewmodels
 
 import com.example.frontend.api.ItineraryStepApi
 import com.example.frontend.models.ItineraryStep
+import com.example.frontend.util.TestLogger
 import io.mockk.coEvery
 import io.mockk.mockk
 import kotlinx.coroutines.Dispatchers
@@ -26,7 +27,7 @@ class ItineraryStepViewModelTest {
     fun setup() {
         Dispatchers.setMain(testDispatcher)
         api = mockk()
-        viewModel = ItineraryStepViewModel(api)
+        viewModel = ItineraryStepViewModel(api = api, logger = TestLogger)
     }
 
     @After
@@ -36,7 +37,6 @@ class ItineraryStepViewModelTest {
 
     @Test
     fun `fetchSteps should update steps and clear error`() = runTest {
-        // Given
         val itineraryId = UUID.randomUUID()
         val steps = listOf(
             ItineraryStep(
@@ -53,26 +53,21 @@ class ItineraryStepViewModelTest {
         )
         coEvery { api.getStepsForItinerary(itineraryId) } returns steps
 
-        // When
         viewModel.fetchSteps(itineraryId)
         testDispatcher.scheduler.advanceUntilIdle()
 
-        // Then
         assertEquals(steps, viewModel.steps.value)
         assertEquals(null, viewModel.error.value)
     }
 
     @Test
     fun `fetchSteps should handle API failure and set error message`() = runTest {
-        // Given
         val itineraryId = UUID.randomUUID()
         coEvery { api.getStepsForItinerary(itineraryId) } throws RuntimeException("Network error")
 
-        // When
         viewModel.fetchSteps(itineraryId)
         testDispatcher.scheduler.advanceUntilIdle()
 
-        // Then
         assertEquals(emptyList<ItineraryStep>(), viewModel.steps.value)
         assertEquals("No steps available or error occurred", viewModel.error.value)
     }

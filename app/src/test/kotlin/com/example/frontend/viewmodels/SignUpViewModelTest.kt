@@ -2,20 +2,14 @@ package com.example.frontend.viewmodels
 
 import android.app.Application
 import com.example.frontend.api.*
-import com.example.frontend.models.UserAccessibilityFeatureRequest
-import com.example.frontend.models.UserAccessibilityFeature
-import com.example.frontend.models.UserCountryAccess
-import com.example.frontend.models.UserCountryAccessRequest
-import com.example.frontend.models.UserSelectedDestination
-import com.example.frontend.models.UserSelectedDestinationRequest
-import com.example.frontend.models.AuthResponse
-import com.example.frontend.models.Destination
+import com.example.frontend.models.*
 import com.example.frontend.storage.TokenManager
+import com.example.frontend.util.TestLogger
 import io.mockk.coEvery
+import io.mockk.mockk
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.*
-import io.mockk.mockk
 import org.junit.After
 import org.junit.Assert.assertEquals
 import org.junit.Before
@@ -58,7 +52,8 @@ class SignUpViewModelTest {
             userAccessibilityFeatureApi,
             userCountryAccessApi,
             userSelectedDestinationApi,
-            tokenManager
+            tokenManager,
+            logger = TestLogger
         )
     }
 
@@ -125,7 +120,6 @@ class SignUpViewModelTest {
         val feature2 = UUID.randomUUID()
         val features = setOf(feature1, feature2)
 
-        // Given
         viewModel.updateSelectedAccessibilityFeatures(features)
 
         coEvery {
@@ -152,16 +146,12 @@ class SignUpViewModelTest {
             updatedAt = "2025-01-01T00:00:00"
         )
 
-        // When
         viewModel.submitAccessibilityFeatures(userId)
         testDispatcher.scheduler.advanceUntilIdle()
-
-        // Then: no exception means success, no assertion needed unless tracking side effects
     }
 
     @Test
     fun `submitUserCountryAccess should post each selected country`() = runTest {
-        // Given
         val userId = UUID.randomUUID()
         val franceId = UUID.randomUUID()
         val italyId = UUID.randomUUID()
@@ -195,21 +185,17 @@ class SignUpViewModelTest {
             updatedAt = "2024-01-01T00:00:00"
         )
 
-        // When
         viewModel.submitUserCountryAccess(userId, countryMap)
         testDispatcher.scheduler.advanceUntilIdle()
-
-        // Then: no crash = success
     }
 
     @Test
     fun `submitUserSelectedDestinations should post each selected place`() = runTest {
-        // Given
         val userId = UUID.randomUUID()
         val louvreId = UUID.randomUUID()
         val colosseumId = UUID.randomUUID()
-
         val destinationMap = mapOf("Louvre" to louvreId, "Colosseum" to colosseumId)
+
         viewModel.updateSelectedPlaces(setOf("Louvre", "Colosseum"))
 
         coEvery {
@@ -236,21 +222,16 @@ class SignUpViewModelTest {
             updatedAt = "2024-01-01T00:00:00"
         )
 
-        // When
         viewModel.submitUserSelectedDestinations(userId, destinationMap)
         testDispatcher.scheduler.advanceUntilIdle()
-
-        // Then: no assertion needed, success = no crash
     }
 
     @Test
     fun `submitSignup should complete full signup flow`() = runTest {
-        // Given
         val userId = UUID.randomUUID()
         val louvreId = UUID.randomUUID()
         val franceId = UUID.randomUUID()
 
-        // Fill state
         viewModel.updateFullName("Alice")
         viewModel.updateNickname("Ally")
         viewModel.updateEmail("alice@example.com")
@@ -260,7 +241,6 @@ class SignUpViewModelTest {
         viewModel.updateSelectedDestinations(setOf("France"))
         viewModel.updateSelectedPlaces(setOf("Louvre"))
 
-        // Stub API calls
         coEvery { userApi.createUser(any()) } returns mockk(relaxed = true)
         coEvery { authApi.login(any()) } returns AuthResponse(
             userId = userId.toString(),
@@ -286,10 +266,7 @@ class SignUpViewModelTest {
         )
         coEvery { userSelectedDestinationApi.createUserSelectedDestination(any()) } returns mockk(relaxed = true)
 
-        // When
         viewModel.submitSignup(mapOf("France" to franceId))
         testDispatcher.scheduler.advanceUntilIdle()
-
-        // Then: no crash = success
     }
 }
