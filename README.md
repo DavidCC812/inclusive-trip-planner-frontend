@@ -91,6 +91,8 @@ This app communicates with a secured REST API hosted at:
 
 All data is exchanged via Retrofit, including user onboarding, itinerary saving, reviews, and preferences. The app authenticates users with Firebase and exchanges the resulting ID token for a JWT via `/api/auth/firebase`.
 
+If you're testing the app locally, make sure the backend is also running locally (`http://localhost:8080`) or accessible from your device to ensure API calls succeed.
+
 ## Usage
 
 Once the app is installed:
