@@ -7,7 +7,7 @@
 ![Android](https://img.shields.io/badge/Android-API%2030%2B-yellow.svg)
 
 
-Backend repository: [inclusive-trip-planner-backend](https://github.com/yourusername/inclusive-trip-planner-backend)
+Backend repository: [inclusive-trip-planner-backend](https://github.com/DavidCC812/inclusive-trip-planner-backend)
 
 ## Overview
 
@@ -40,15 +40,17 @@ The mobile app is built using Jetpack Compose (Kotlin), follows MVVM architectur
 
 The app follows a clean MVVM (Model–View–ViewModel) structure, organized as follows:
 
-api/               - Retrofit API interfaces  
-auth/              - Authentication logic (Firebase)  
-components/        - Reusable Jetpack Compose UI components  
-models/            - Kotlin data models (DTOs, responses, requests)  
-network/           - Network configuration (e.g. Retrofit setup)  
-screens/           - Top-level Composable screens  
-storage/           - Local storage and shared preferences  
-viewmodels/        - ViewModel classes and UI logic  
-test/.../viewmodels/ - Unit tests for all ViewModels
+```
+api/                 Retrofit API interfaces  
+auth/                Authentication logic (Firebase)  
+components/          Reusable Jetpack Compose UI components  
+models/              Kotlin data models (DTOs, responses, requests)  
+network/             Network configuration (e.g. Retrofit setup)  
+screens/             Top-level Composable screens  
+storage/             Local storage and shared preferences  
+viewmodels/          ViewModel classes and UI logic  
+test/.../viewmodels/ Unit tests for all ViewModels  
+```
 
 This structure separates UI rendering (screens/components) from business logic (viewmodels) and data sources (api/network/models), ensuring modularity, testability, and scalability.
 
@@ -64,21 +66,23 @@ This structure separates UI rendering (screens/components) from business logic (
 
 ## Setup Instructions
 
-1. Clone the Repository
+1. **Clone the Repository**
 
-   git clone https://github.com/yourusername/inclusive-trip-planner-android.git  
-   cd inclusive-trip-planner-android
+   ```bash
+   git clone https://github.com/DavidCC812/inclusive-trip-planner-frontend.git
+   cd inclusive-trip-planner-frontend
+   ```
 
-2. Open in Android Studio
+2. **Open in Android Studio**
 
-   - Open the project in Android Studio Hedgehog or later
-   - Allow Gradle to sync and download dependencies
+   - Open the project using **Android Studio Hedgehog** or later  
+   - Allow **Gradle** to sync and resolve all dependencies
 
-3. Firebase Configuration
+3. **Firebase Configuration**
 
-   - Replace the existing `google-services.json` file in the root of the project with your own Firebase config  
-   - Make sure Google Sign-In is enabled in your Firebase console  
-   - The project is already set up to use Firebase Authentication — no need to use the Assistant tab
+   - Replace the existing `google-services.json` in the project root with your own Firebase config  
+   - Enable **Google Sign-In** in your Firebase console  
+   - No need to use the **Assistant tab** — Firebase Authentication is already integrated
 
 ## Backend Integration
 
@@ -121,5 +125,5 @@ GitHub Actions runs all tests on each commit to develop and main.
 ## Contact
 
 David Cuahonte Cuevas  
-GitHub: https://github.com/yourusername  
-LinkedIn: https://www.linkedin.com/in/yourprofile/
+GitHub: <https://github.com/DavidCC812>  
+LinkedIn: <https://www.linkedin.com/in/david-cuahonte-527781221/>
