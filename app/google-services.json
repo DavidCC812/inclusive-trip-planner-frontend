@@ -1,0 +1,47 @@
+{
+  "project_info": {
+    "project_number": "511512637607",
+    "project_id": "inclusive-trip-planner",
+    "storage_bucket": "inclusive-trip-planner.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:511512637607:android:c65cf7e4cc29c488ed2b82",
+        "android_client_info": {
+          "package_name": "com.example.frontend"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "511512637607-i9f22ooua0a8u3ar6739mnegcev8ettr.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.example.frontend",
+            "certificate_hash": "76ad3d5ea1b1d0ed34bc1b897a67fcaa71613c21"
+          }
+        },
+        {
+          "client_id": "511512637607-f89n4krl8vnqf7q673k8jm4kgshtk8ip.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDlxzrjZm-V5bYEPR2WJz0umqsDi0DC1eE"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "511512637607-f89n4krl8vnqf7q673k8jm4kgshtk8ip.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
