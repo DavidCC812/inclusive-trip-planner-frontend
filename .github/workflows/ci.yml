@@ -1,0 +1,104 @@
+name: Android Frontend CI
+
+on:
+  push:
+    branches: [ main, develop ]
+  pull_request:
+    branches: [ main, develop ]
+
+jobs:
+  build:
+    name: Build APK
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v3
+      - uses: actions/setup-java@v3
+        with:
+          distribution: 'temurin'
+          java-version: 17
+      - uses: android-actions/setup-android@v3
+
+      - name: Set snapshot flag
+        id: flags
+        run: |
+          if [[ "${GITHUB_REF##*/}" == "develop" ]]; then
+            echo "snapshot_flag=-Psnapshot=true" >> $GITHUB_OUTPUT
+          else
+            echo "snapshot_flag=" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Assemble Debug
+        run: ./gradlew assembleDebug ${{ steps.flags.outputs.snapshot_flag }}
+
+  unit_tests:
+    name: Run Unit Tests
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v3
+      - uses: actions/setup-java@v3
+        with:
+          distribution: 'temurin'
+          java-version: 17
+      - uses: android-actions/setup-android@v3
+
+      - name: Set snapshot flag
+        id: flags
+        run: |
+          if [[ "${GITHUB_REF##*/}" == "develop" ]]; then
+            echo "snapshot_flag=-Psnapshot=true" >> $GITHUB_OUTPUT
+          else
+            echo "snapshot_flag=" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Run Unit Tests
+        run: ./gradlew testDebugUnitTest ${{ steps.flags.outputs.snapshot_flag }}
+
+      - name: Upload Test Reports
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: test-results
+          path: app/build/test-results/testDebugUnitTest/
+
+  lint_and_coverage:
+    name: Run Lint & Coverage
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v3
+      - uses: actions/setup-java@v3
+        with:
+          distribution: 'temurin'
+          java-version: 17
+      - uses: android-actions/setup-android@v3
+
+      - name: Set snapshot flag
+        id: flags
+        run: |
+          if [[ "${GITHUB_REF##*/}" == "develop" ]]; then
+            echo "snapshot_flag=-Psnapshot=true" >> $GITHUB_OUTPUT
+          else
+            echo "snapshot_flag=" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Run Lint
+        run: ./gradlew lintDebug ${{ steps.flags.outputs.snapshot_flag }}
+
+      - name: Upload Lint Report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: lint-report
+          path: app/build/reports/lint-results-debug.html
+
+      - name: Run Code Coverage (JaCoCo)
+        run: ./gradlew :app:jacocoTestReport ${{ steps.flags.outputs.snapshot_flag }}
+
+      - name: Upload Coverage Report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: code-coverage-report
+          path: app/build/reports/jacoco/jacocoTestReport/html/
