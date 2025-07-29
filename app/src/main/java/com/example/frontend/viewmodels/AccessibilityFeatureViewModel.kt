@@ -2,18 +2,23 @@ package com.example.frontend.viewmodels
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.example.frontend.api.AccessibilityFeatureApi
+import com.example.frontend.api.UserAccessibilityFeatureApi
 import com.example.frontend.models.AccessibilityFeature
 import com.example.frontend.network.RetrofitClient
+import com.example.frontend.util.AndroidLogger
+import com.example.frontend.util.Logger
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
 import java.util.UUID
 
 class AccessibilityFeatureViewModel(
-    private val featureApi: com.example.frontend.api.AccessibilityFeatureApi = RetrofitClient.accessibilityFeatureApi,
-    private val userFeatureApi: com.example.frontend.api.UserAccessibilityFeatureApi = RetrofitClient.userAccessibilityFeatureApi,
+    private val featureApi: AccessibilityFeatureApi = RetrofitClient.accessibilityFeatureApi,
+    private val userFeatureApi: UserAccessibilityFeatureApi = RetrofitClient.userAccessibilityFeatureApi,
     initialFeatures: List<AccessibilityFeature> = emptyList(),
-    skipInitFetch: Boolean = false
+    skipInitFetch: Boolean = false,
+    private val logger: Logger = AndroidLogger
 ) : ViewModel() {
 
     private val _features = MutableStateFlow(initialFeatures)
@@ -30,6 +35,7 @@ class AccessibilityFeatureViewModel(
             fetchAccessibilityFeatures()
         }
     }
+
     fun fetchAccessibilityFeatures() {
         viewModelScope.launch {
             try {
@@ -37,7 +43,7 @@ class AccessibilityFeatureViewModel(
                 val response = featureApi.getAccessibilityFeatures()
                 _features.value = response
             } catch (e: Exception) {
-                e.printStackTrace()
+                logger.e("AccessibilityFeature", "Fetch features error: ${e.message}", e)
             } finally {
                 _isLoading.value = false
             }
@@ -59,7 +65,7 @@ class AccessibilityFeatureViewModel(
 
                 _selectedLabels.value = selectedLabels
             } catch (e: Exception) {
-                e.printStackTrace()
+                logger.e("AccessibilityFeature", "Fetch user features error: ${e.message}", e)
             }
         }
     }

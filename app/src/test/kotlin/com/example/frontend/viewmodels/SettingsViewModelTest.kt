@@ -5,6 +5,7 @@ import com.example.frontend.api.UserSettingApi
 import com.example.frontend.models.Setting
 import com.example.frontend.models.UserSetting
 import com.example.frontend.models.UserSettingUi
+import com.example.frontend.util.TestLogger
 import io.mockk.coEvery
 import io.mockk.mockk
 import kotlinx.coroutines.Dispatchers
@@ -39,7 +40,6 @@ class SettingsViewModelTest {
 
     @Test
     fun `loadSettings should populate settings and clear error`() = runTest {
-        // Given
         val settingId = UUID.randomUUID().toString()
         val settingList = listOf(
             Setting(
@@ -61,13 +61,11 @@ class SettingsViewModelTest {
         coEvery { settingApi.getAllSettings() } returns settingList
         coEvery { userSettingApi.getAllUserSettings() } returns userSettingList
 
-        viewModel = SettingsViewModel(userId, settingApi, userSettingApi, skipInitFetch = true)
+        viewModel = SettingsViewModel(userId, settingApi, userSettingApi, skipInitFetch = true, logger = TestLogger)
 
-        // When
         viewModel.loadSettings()
         testDispatcher.scheduler.advanceUntilIdle()
 
-        // Then
         assertEquals(
             listOf(
                 UserSettingUi(
@@ -87,7 +85,7 @@ class SettingsViewModelTest {
         coEvery { settingApi.getAllSettings() } throws RuntimeException("API error")
         coEvery { userSettingApi.getAllUserSettings() } returns emptyList()
 
-        viewModel = SettingsViewModel(userId, settingApi, userSettingApi, skipInitFetch = true)
+        viewModel = SettingsViewModel(userId, settingApi, userSettingApi, skipInitFetch = true, logger = TestLogger)
         viewModel.loadSettings()
         testDispatcher.scheduler.advanceUntilIdle()
 
@@ -116,7 +114,8 @@ class SettingsViewModelTest {
             settingApi,
             userSettingApi,
             initialSettings = listOf(ui),
-            skipInitFetch = true
+            skipInitFetch = true,
+            logger = TestLogger
         )
 
         viewModel.postUserSetting(settingId, true)
@@ -124,7 +123,6 @@ class SettingsViewModelTest {
 
         assertEquals(true, viewModel.settings.value.first().value)
     }
-
 
     @Test
     fun `postUserSetting should create new user setting via POST`() = runTest {
@@ -147,7 +145,8 @@ class SettingsViewModelTest {
             settingApi,
             userSettingApi,
             initialSettings = listOf(ui),
-            skipInitFetch = true
+            skipInitFetch = true,
+            logger = TestLogger
         )
 
         viewModel.postUserSetting(settingId, true)
@@ -155,5 +154,4 @@ class SettingsViewModelTest {
 
         assertEquals(true, viewModel.settings.value.first().value)
     }
-
 }

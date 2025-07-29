@@ -1,13 +1,14 @@
 package com.example.frontend.viewmodels
 
 import android.app.Application
-import android.util.Log
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.frontend.api.*
 import com.example.frontend.models.*
 import com.example.frontend.network.RetrofitClient
 import com.example.frontend.storage.TokenManager
+import com.example.frontend.util.AndroidLogger
+import com.example.frontend.util.Logger
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
@@ -21,7 +22,8 @@ class SignUpViewModel(
     private val userAccessibilityFeatureApi: UserAccessibilityFeatureApi = RetrofitClient.userAccessibilityFeatureApi,
     private val userCountryAccessApi: UserCountryAccessApi = RetrofitClient.userCountryAccessApi,
     private val userSelectedDestinationApi: UserSelectedDestinationApi = RetrofitClient.userSelectedDestinationApi,
-    private val tokenManager: TokenManager = TokenManager
+    private val tokenManager: TokenManager = TokenManager,
+    private val logger: Logger = AndroidLogger
 ) : AndroidViewModel(application) {
 
     private val _fullName = MutableStateFlow("")
@@ -54,12 +56,12 @@ class SignUpViewModel(
     fun updatePhone(phone: String) { _phone.value = phone }
     fun updatePassword(password: String) { _password.value = password }
     fun updateEmail(email: String) {
-        //Log.d("SignUpViewModel", "Updating email to: $email")
+        logger.d("SignUpViewModel", "Updating email to: $email")
         _email.value = email
     }
     fun updateSelectedAccessibilityFeatures(features: Set<UUID>) { _selectedAccessibilityFeatures.value = features }
     fun updateSelectedDestinations(destinations: Set<String>) {
-        //Log.d("SignUpViewModel", "Updating selected destinations with: $destinations")
+        logger.d("SignUpViewModel", "Updating selected destinations with: $destinations")
         _selectedDestinations.value = destinations
     }
     fun updateSelectedPlaces(places: Set<String>) { _selectedPlaces.value = places }
@@ -70,9 +72,9 @@ class SignUpViewModel(
                 try {
                     val request = UserAccessibilityFeatureRequest(userId = userId, featureId = featureId)
                     userAccessibilityFeatureApi.createUserAccessibilityFeature(request)
-                    //Log.d("SignUpViewModel", "Posted feature $featureId for user $userId")
+                    logger.d("SignUpViewModel", "Posted feature $featureId for user $userId")
                 } catch (e: Exception) {
-                    //Log.e("SignUpViewModel", "Failed to post feature $featureId for user $userId", e)
+                    logger.e("SignUpViewModel", "Failed to post feature $featureId for user $userId", e)
                 }
             }
         }
@@ -86,9 +88,9 @@ class SignUpViewModel(
                     try {
                         val request = UserCountryAccessRequest(userId = userId, countryId = countryId)
                         userCountryAccessApi.createUserCountryAccess(request)
-                        //Log.d("SignUpViewModel", "Linked country $countryId for user $userId")
+                        logger.d("SignUpViewModel", "Linked country $countryId for user $userId")
                     } catch (e: Exception) {
-                        //Log.e("SignUpViewModel", "Failed to link country $countryId for user $userId", e)
+                        logger.e("SignUpViewModel", "Failed to link country $countryId for user $userId", e)
                     }
                 }
             }
@@ -103,9 +105,9 @@ class SignUpViewModel(
                     try {
                         val request = UserSelectedDestinationRequest(userId = userId, destinationId = destinationId)
                         userSelectedDestinationApi.createUserSelectedDestination(request)
-                        //Log.d("SignUpViewModel", "Linked destination $destinationId for user $userId")
+                        logger.d("SignUpViewModel", "Linked destination $destinationId for user $userId")
                     } catch (e: Exception) {
-                        //Log.e("SignUpViewModel", "Failed to link destination $destinationId for user $userId", e)
+                        logger.e("SignUpViewModel", "Failed to link destination $destinationId for user $userId", e)
                     }
                 }
             }
@@ -115,7 +117,7 @@ class SignUpViewModel(
     fun submitSignup(countryNameToIdMap: Map<String, UUID>) {
         viewModelScope.launch {
             try {
-                //Log.d("SignUpViewModel", "Preparing to submit signup...")
+                logger.d("SignUpViewModel", "Preparing to submit signup...")
 
                 val request = UserRequest(
                     name = fullName.value,
@@ -126,7 +128,7 @@ class SignUpViewModel(
                 )
 
                 val userResponse = userApi.createUser(request)
-                //Log.d("SignUpViewModel", "Signup successful: $userResponse")
+                logger.d("SignUpViewModel", "Signup successful: $userResponse")
 
                 val loginRequest = LoginRequest(
                     identifier = request.email,
@@ -135,7 +137,7 @@ class SignUpViewModel(
                 val loginResponse = authApi.login(loginRequest)
 
                 tokenManager.saveToken(getApplication(), loginResponse.token)
-                //Log.d("SignUpViewModel", "Auto-login successful")
+                logger.d("SignUpViewModel", "Auto-login successful")
 
                 val userId = UUID.fromString(loginResponse.userId)
 
@@ -147,7 +149,7 @@ class SignUpViewModel(
                 submitUserSelectedDestinations(userId, destinationNameToIdMap)
 
             } catch (e: Exception) {
-                //Log.e("SignUpViewModel", "Signup failed", e)
+                logger.e("SignUpViewModel", "Signup failed", e)
             }
         }
     }

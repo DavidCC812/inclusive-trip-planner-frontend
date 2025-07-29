@@ -2,6 +2,7 @@ package com.example.frontend.viewmodels
 
 import com.example.frontend.api.SavedItineraryApi
 import com.example.frontend.models.SavedItinerary
+import com.example.frontend.util.TestLogger
 import io.mockk.coEvery
 import io.mockk.mockk
 import kotlinx.coroutines.Dispatchers
@@ -27,7 +28,7 @@ class SavedItinerariesViewModelTest {
     fun setup() {
         Dispatchers.setMain(testDispatcher)
         api = mockk()
-        viewModel = SavedItinerariesViewModel(api, skipInitialFetch = true)
+        viewModel = SavedItinerariesViewModel(api, skipInitialFetch = true, logger = TestLogger)
     }
 
     @After
@@ -105,7 +106,13 @@ class SavedItinerariesViewModelTest {
         )
         coEvery { api.deleteItinerary(saved.id) } returns Unit
 
-        viewModel = SavedItinerariesViewModel(api, skipInitialFetch = true, initialSaved = listOf(saved))
+        viewModel = SavedItinerariesViewModel(
+            api,
+            skipInitialFetch = true,
+            initialSaved = listOf(saved),
+            logger = TestLogger
+        )
+
         viewModel.removeItinerary(itineraryId)
         testDispatcher.scheduler.advanceUntilIdle()
 
@@ -123,7 +130,13 @@ class SavedItinerariesViewModelTest {
             createdAt = "2024-01-01T00:00:00",
             updatedAt = null
         )
-        viewModel = SavedItinerariesViewModel(api, skipInitialFetch = true, initialSaved = listOf(saved))
+
+        viewModel = SavedItinerariesViewModel(
+            api,
+            skipInitialFetch = true,
+            initialSaved = listOf(saved),
+            logger = TestLogger
+        )
 
         viewModel.setAsNextPlan(itineraryId)
 

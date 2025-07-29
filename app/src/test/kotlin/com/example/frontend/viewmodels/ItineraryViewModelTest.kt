@@ -3,6 +3,7 @@ package com.example.frontend.viewmodels
 import app.cash.turbine.test
 import com.example.frontend.api.ItineraryApi
 import com.example.frontend.models.Itinerary
+import com.example.frontend.util.TestLogger
 import io.mockk.coEvery
 import io.mockk.mockk
 import kotlinx.coroutines.Dispatchers
@@ -13,7 +14,6 @@ import org.junit.Assert.assertEquals
 import org.junit.Before
 import org.junit.Test
 import java.util.*
-
 
 @OptIn(ExperimentalCoroutinesApi::class)
 class ItineraryViewModelTest {
@@ -27,7 +27,7 @@ class ItineraryViewModelTest {
     fun setup() {
         Dispatchers.setMain(testDispatcher)
         api = mockk()
-        viewModel = ItineraryViewModel(api)
+        viewModel = ItineraryViewModel(api = api, logger = TestLogger)
     }
 
     @After
@@ -37,7 +37,6 @@ class ItineraryViewModelTest {
 
     @Test
     fun `fetchItineraries should update state when API returns data`() = runTest {
-        // Given
         val expected = listOf(
             Itinerary(
                 id = UUID.randomUUID(),
@@ -54,24 +53,19 @@ class ItineraryViewModelTest {
         )
         coEvery { api.getAllItineraries() } returns expected
 
-        // When
         viewModel.fetchItineraries()
         testDispatcher.scheduler.advanceUntilIdle()
 
-        // Then
         assertEquals(expected, viewModel.itineraries.value)
     }
 
     @Test
     fun `fetchItineraries should not crash and keep state empty on API failure`() = runTest {
-        // Given
         coEvery { api.getAllItineraries() } throws RuntimeException("Network error")
 
-        // When
         viewModel.fetchItineraries()
         testDispatcher.scheduler.advanceUntilIdle()
 
-        // Then
         assertEquals(emptyList<Itinerary>(), viewModel.itineraries.value)
     }
 
@@ -115,5 +109,4 @@ class ItineraryViewModelTest {
             cancel()
         }
     }
-
 }

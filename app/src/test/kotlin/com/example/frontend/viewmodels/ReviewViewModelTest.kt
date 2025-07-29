@@ -3,6 +3,7 @@ package com.example.frontend.viewmodels
 import com.example.frontend.api.ReviewApi
 import com.example.frontend.models.Review
 import com.example.frontend.models.ReviewRequest
+import com.example.frontend.util.TestLogger
 import io.mockk.coEvery
 import io.mockk.mockk
 import kotlinx.coroutines.Dispatchers
@@ -26,7 +27,7 @@ class ReviewViewModelTest {
     fun setup() {
         Dispatchers.setMain(testDispatcher)
         api = mockk()
-        viewModel = ReviewViewModel(api, skipInitialFetch = true)
+        viewModel = ReviewViewModel(api, skipInitialFetch = true, logger = TestLogger)
     }
 
     @After
@@ -36,7 +37,6 @@ class ReviewViewModelTest {
 
     @Test
     fun `fetchAllReviews should update reviews and clear error`() = runTest {
-        // Given
         val reviews = listOf(
             Review(
                 id = UUID.randomUUID(),
@@ -50,25 +50,20 @@ class ReviewViewModelTest {
         )
         coEvery { api.getAllReviews() } returns reviews
 
-        // When
         viewModel.fetchAllReviews()
         testDispatcher.scheduler.advanceUntilIdle()
 
-        // Then
         assertEquals(reviews, viewModel.reviews.value)
         assertEquals(null, viewModel.error.value)
     }
 
     @Test
     fun `fetchAllReviews should handle API failure and set error`() = runTest {
-        // Given
         coEvery { api.getAllReviews() } throws RuntimeException("Network error")
 
-        // When
         viewModel.fetchAllReviews()
         testDispatcher.scheduler.advanceUntilIdle()
 
-        // Then
         assertEquals(emptyList<Review>(), viewModel.reviews.value)
         assertEquals("Failed to fetch reviews", viewModel.error.value)
     }
@@ -98,12 +93,10 @@ class ReviewViewModelTest {
             updatedAt = null
         )
 
-        viewModel = ReviewViewModel(api, skipInitialFetch = true, initialReviews = allReviews)
+        viewModel = ReviewViewModel(api, skipInitialFetch = true, initialReviews = allReviews, logger = TestLogger)
 
-        // When
         val result = viewModel.getReviewsForItinerary(itineraryId.toString())
 
-        // Then
         assertEquals(expected, result)
     }
 

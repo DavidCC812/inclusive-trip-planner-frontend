@@ -1,7 +1,6 @@
 package com.example.frontend.viewmodels
 
 import android.app.Application
-import android.util.Log
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.frontend.api.AuthApi
@@ -9,6 +8,8 @@ import com.example.frontend.api.UserApi
 import com.example.frontend.models.*
 import com.example.frontend.network.RetrofitClient
 import com.example.frontend.storage.TokenManager
+import com.example.frontend.util.AndroidLogger
+import com.example.frontend.util.Logger
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.firstOrNull
@@ -18,7 +19,8 @@ class UserViewModel(
     application: Application,
     private val userApi: UserApi = RetrofitClient.userApi,
     private val authApi: AuthApi = RetrofitClient.authApi,
-    private val tokenManager: TokenManager = TokenManager
+    private val tokenManager: TokenManager = TokenManager,
+    private val logger: Logger = AndroidLogger
 ) : AndroidViewModel(application) {
 
     private val _user = MutableStateFlow<User?>(null)
@@ -39,6 +41,7 @@ class UserViewModel(
                 _user.value = response
             } catch (e: Exception) {
                 _error.value = e.localizedMessage ?: "Unexpected error"
+                logger.e("UserViewModel", "Failed to create user: ${e.message}", e)
             } finally {
                 _isLoading.value = false
             }
@@ -54,6 +57,7 @@ class UserViewModel(
                 _user.value = response
             } catch (e: Exception) {
                 _error.value = e.localizedMessage ?: "Unable to load user"
+                logger.e("UserViewModel", "Failed to fetch user $id: ${e.message}", e)
             } finally {
                 _isLoading.value = false
             }
@@ -69,7 +73,7 @@ class UserViewModel(
                 _user.value = response
                 onResult(response)
             } catch (e: Exception) {
-                //Log.e("UserViewModel", "Error fetching user by email: ${e.localizedMessage}", e)
+                logger.e("UserViewModel", "Error fetching user by email: ${e.localizedMessage}", e)
                 _user.value = null
                 onResult(null)
             } finally {
@@ -87,7 +91,7 @@ class UserViewModel(
                 _user.value = response
                 onResult(response)
             } catch (e: Exception) {
-                //Log.e("UserViewModel", "Error fetching user by phone: ${e.localizedMessage}", e)
+                logger.e("UserViewModel", "Error fetching user by phone: ${e.localizedMessage}", e)
                 _user.value = null
                 onResult(null)
             } finally {
@@ -119,7 +123,7 @@ class UserViewModel(
 
                 onResult(true)
             } catch (e: Exception) {
-                //Log.e("UserViewModel", "Login failed: ${e.localizedMessage}", e)
+                logger.e("UserViewModel", "Login failed: ${e.localizedMessage}", e)
                 _error.value = "Login failed: ${e.localizedMessage}"
                 _user.value = null
                 onResult(false)
@@ -143,7 +147,7 @@ class UserViewModel(
                     }
                 }
             } catch (e: Exception) {
-                //Log.e("UserViewModel", "Failed to load user from token", e)
+                logger.e("UserViewModel", "Failed to load user from token", e)
             }
         }
     }

@@ -5,6 +5,7 @@ import com.example.frontend.api.AuthApi
 import com.example.frontend.api.UserApi
 import com.example.frontend.models.*
 import com.example.frontend.storage.TokenManager
+import com.example.frontend.util.TestLogger
 import io.mockk.coEvery
 import io.mockk.mockk
 import kotlinx.coroutines.Dispatchers
@@ -32,7 +33,7 @@ class UserViewModelTest {
         authApi = mockk()
         tokenManager = mockk()
         app = mockk(relaxed = true)
-        viewModel = UserViewModel(app, userApi, authApi, tokenManager)
+        viewModel = UserViewModel(app, userApi, authApi, tokenManager, logger = TestLogger)
     }
 
     @After
@@ -58,7 +59,6 @@ class UserViewModelTest {
             passwordHash = "hashed",
             createdAt = "2025-01-01T00:00:00",
             updatedAt = "2025-01-01T00:00:00"
-
         )
         coEvery { userApi.createUser(request) } returns user
 
@@ -81,7 +81,6 @@ class UserViewModelTest {
             passwordHash = "pass",
             createdAt = "2025-01-01T00:00:00",
             updatedAt = "2025-01-01T00:00:00"
-
         )
         coEvery { userApi.getUserById("1") } returns user
 
@@ -102,7 +101,6 @@ class UserViewModelTest {
             passwordHash = "hash",
             createdAt = "2025-01-01T00:00:00",
             updatedAt = "2025-01-01T00:00:00"
-
         )
         coEvery { userApi.getUserByEmail("bob@example.com") } returns user
 
