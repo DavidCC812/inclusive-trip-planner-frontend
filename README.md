@@ -1,6 +1,6 @@
 # Inclusive Trip Planner – Frontend
 
-![License](https://img.shields.io/github/license/DavidCC812/inclusive-trip-planner-frontend.svg)
+![License](https://img.shields.io/github/license/DavidCC812/inclusive-trip-planner-frontend?style=flat-square)
 ![Build Status](https://github.com/DavidCC812/inclusive-trip-planner-frontend/actions/workflows/ci.yml/badge.svg)
 ![Kotlin](https://img.shields.io/badge/Kotlin-1.9%2B-blueviolet.svg)
 ![Jetpack Compose](https://img.shields.io/badge/Jetpack--Compose-UI-green.svg)
