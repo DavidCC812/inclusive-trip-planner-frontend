@@ -6,7 +6,6 @@
 ![Jetpack Compose](https://img.shields.io/badge/Jetpack--Compose-UI-green.svg)
 ![Android](https://img.shields.io/badge/Android-API%2030%2B-yellow.svg)
 
-
 Backend repository: [inclusive-trip-planner-backend](https://github.com/DavidCC812/inclusive-trip-planner-backend)
 
 ## Overview
@@ -105,7 +104,9 @@ Once the app is installed:
 
 To run unit tests:
 
+   ```bash
    ./gradlew test
+   ```
 
 This includes coverage for:
 
@@ -124,6 +125,6 @@ GitHub Actions runs all tests on each commit to develop and main.
 
 ## Contact
 
-David Cuahonte Cuevas  
-GitHub: <https://github.com/DavidCC812>  
-LinkedIn: <https://www.linkedin.com/in/david-cuahonte-527781221/>
+**David Cuahonte Cuevas**  
+[GitHub](https://github.com/DavidCC812)  
+[LinkedIn](https://www.linkedin.com/in/david-cuahonte-527781221/)
